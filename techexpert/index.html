@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">   
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #1a1a1a;
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 16px;
+            color: #0969da;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back:hover { text-decoration: underline; }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            margin: 12px 0 4px;
+        }
+
+        .header-row + h2 {
+            margin-top: 4px;
+        }
+
+        ol, ul {
+            padding-left: 1.5rem;
+            margin: 0 0 16px 0;
+            list-style-position: outside;
+        }
+
+        li {
+            margin-bottom: 0.15rem;
+            line-height: 1.5;
+        }
+
+        .meta {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+
+        .prompt-box {
+            background: #fff;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            background: #2ea043;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 16px;
+        }
+
+        .copy-btn:hover:not(:disabled) { background: #278c37; }
+        .copy-btn:active:not(:disabled) { background: #1a6b28; }
+        .copy-btn.copied { background: #1a6b28; }
+        .copy-btn.error { background: #cf222e; }
+
+        .copy-btn:disabled {
+            background: #94d3a2;
+            cursor: not-allowed;
+        }
+
+        .header-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 0px;
+            flex-wrap: wrap;
+        }
+
+        .links {
+            margin: 8px 0 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px 14px;
+        }
+
+        .action-link {
+            display: inline-block;
+            padding: 8px 12px;
+            background: #f3f4f6;
+            color: #111827;
+            text-decoration: none;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.2;
+            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .action-link:hover {
+            background: #e5e7eb;
+            border-color: #9ca3af;
+            text-decoration: none;
+        }
+
+        .meta-link {
+            color: #0969da;
+            text-decoration: none;
+            font-size: 0.95rem;
+            line-height: 1.2;
+        }
+
+        .meta-link:hover {
+            text-decoration: underline;
+        }
+
+        .note {
+            margin-top: 24px;
+            padding: 12px;
+            background: #fff8c5;
+            border: 1px solid #d4a72c;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #6a5300;
+            display: none;
+        }    
+        
+        h3 {
+            font-size: 1rem;
+            margin: 16px 0 6px;
+        }        
+
+
+        p {
+            margin: 0 0 12px 0;
+            line-height: 1.5;
+        }        
+    </style>
+</head>
+<body>
+<noscript>
+    <p style="padding:16px; background:#fff3cd; border:1px solid #d4a72c; border-radius:8px; color:#6a5300; font-size:0.95rem;">
+        Для работы страницы требуется JavaScript.
+    </p>
+</noscript>
+    <div class="header-row">
+        <h1 id="pageTitle"></h1>
+    </div>
+
+    <h2>Возможности:</h2>
+    <ol>
+        <li>Работа в рамках контекста/предметной области (задается в переменной CONTEXT).</li>
+        <li>Минимизирует «галлюцинации» в технических ответах. Заставляет модель не придумывать факты/параметры/функции, а либо опираться на данные, либо явно сообщать, что данных недостаточно и помечать [ГИПОТЕЗЫ].</li>
+        <li>При работе со скриншотами валидирует полученное изображение в кратком виде (режим И — по-умолчанию) или детально с перечнем видимых фактов (режим ИФ).</li>
+        <li>Запрашивает недостающие данные вместо догадок.</li>
+    </ol>
+
+    <button class="copy-btn" onclick="copyPrompt(this)" disabled>
+        📋 Скопировать
+    </button>
+    
+    <div class="prompt-box" id="promptText">Загрузка...</div>
+
+    <button class="copy-btn" onclick="copyPrompt(this)" disabled>
+        📋 Скопировать
+    </button>
+
+    <div class="note" id="errorNote"></div>
+
+    <div class="links">
+        <a class="action-link" id="openFile" target="_blank" rel="noopener">
+            Открыть файл
+        </a>
+        <a class="action-link" href="#" id="downloadFile">
+            Скачать файл
+        </a>
+        <a class="meta-link" id="historyFile" target="_blank" rel="noopener">
+            История изменений (GitHub)
+        </a>
+    </div>
+
+    <h2>Версии:</h2>
+    <ul>
+        <li><strong>1.0-beta</strong> (12.01.2026): Исходная версия.</li>
+    </ul>
+
+    <h2>Дисклеймер / Отказ от ответственности</h2>
+    
+    <h3>Отказ от ответственности:</h3>
+    <p>
+        Материал статьи предоставляется исключительно в информационных и образовательных целях и публикуется «как есть». Автор не гарантирует точность, полноту и применимость описанных методов к конкретным исходникам и задачам. Любые действия по обработке аудио, установке/использованию программ, плагинов и настройке оборудования вы выполняете самостоятельно и на свой риск. Автор не несёт ответственности за любые прямые или косвенные последствия и убытки, включая (но не ограничиваясь) ухудшение качества материала, потерю данных, финансовые потери, сбои программного обеспечения, повреждение оборудования и/или вред здоровью.
+    </p>
+    
+    <h3>Безопасность и сохранность данных:</h3>
+    <p>
+        Перед обработкой создавайте резервные копии исходных файлов и сохраняйте промежуточные версии проекта.
+    </p>
+    
+    <h3>Авторские права и использование контента:</h3>
+    <p>
+        Статья не является юридической консультацией. Вся ответственность за соблюдение авторских и смежных прав, а также за использование исходных материалов и публикацию/распространение итогового результата лежит на пользователе, а не на авторе статьи. Перед распространением результата убедитесь, что у вас есть необходимые права и разрешения.
+    </p>
+    
+    <h3>Товарные знаки и упоминания брендов:</h3>
+    <p>
+        Все названия программ, сервисов и продуктов упоминаются исключительно в информационных целях. Все товарные знаки и зарегистрированные обозначения принадлежат их правообладателям. Упоминание брендов не означает официального одобрения, аффилиации или спонсорства, если прямо не указано иное.
+    </p>  
+    <!--
+        Текст промпта вставляется через textContent (не innerHTML).
+        Это значит: HTML/XML-подобные теги в промпте (<info>, </info> и т.п.)
+        отображаются и копируются как обычный текст, а не как разметка.
+        Это сделано специально — безопасно и без искажений.
+        Не меняй на innerHTML.
+    -->
+
+    <script>
+        const repoOwner = 'interessante1';
+        const repoName = 'prompts';
+        const branch = 'main';
+        const filePath = 'techexpert/techexpert-prompt.txt';
+        const fileName = 'techexpert-prompt.txt';
+        const promptTitle = 'Антигаллюцинационный протокол для AI: экспертный промпт с анализом изображений для технических задач и программирования';
+
+        document.title = promptTitle;
+        document.getElementById('pageTitle').textContent = promptTitle;
+
+        const rawUrl = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${branch}/${filePath}`;
+        const historyUrl = `https://github.com/${repoOwner}/${repoName}/commits/${branch}/${filePath}`;
+
+        document.getElementById('openFile').href = rawUrl;
+        document.getElementById('historyFile').href = historyUrl;
+
+        document.getElementById('downloadFile').addEventListener('click', function (e) {
+            e.preventDefault();
+            forceDownload(rawUrl, fileName);
+        });
+
+        // Флаг: промпт успешно загружен
+        let promptLoaded = false;
+
+        fetch(fileName)
+            .then(r => {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.text();
+            })
+            .then(text => {
+                document.getElementById('promptText').textContent = text;
+                promptLoaded = true;
+                // Разблокируем кнопки
+                document.querySelectorAll('.copy-btn')
+                    .forEach(btn => btn.disabled = false);
+            })
+            .catch(err => {
+                document.getElementById('promptText').textContent =
+                    'Ошибка загрузки промпта.';
+                // Показываем подсказку
+                const note = document.getElementById('errorNote');
+                note.style.display = 'block';
+                note.textContent =
+                    'Не удалось загрузить файл. ' +
+                    'Попробуйте обновить страницу. ' +
+                    'Если проблема повторяется — файл может быть недоступен.';
+                // Кнопки остаются disabled
+            });
+
+        function copyPrompt(btn) {
+            // Защита: не копируем если промпт не загружен
+            if (!promptLoaded) return;
+
+            const text = document.getElementById('promptText').textContent;
+            const originalText = btn.textContent;
+
+            // Пробуем Clipboard API
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showSuccess(btn, originalText);
+                }).catch(() => {
+                    // Clipboard API не сработал — пробуем fallback
+                    fallbackCopy(text, btn, originalText);
+                });
+            } else {
+                // Clipboard API недоступен — сразу fallback
+                fallbackCopy(text, btn, originalText);
+            }
+        }
+
+        function fallbackCopy(text, btn, originalText) {
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+
+                if (ok) {
+                    showSuccess(btn, originalText);
+                } else {
+                    showError(btn, originalText);
+                }
+            } catch (e) {
+                showError(btn, originalText);
+            }
+        }
+
+        function showSuccess(btn, originalText) {
+            btn.textContent = '✅ Скопировано!';
+            btn.classList.add('copied');
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.classList.remove('copied');
+            }, 2000);
+        }
+
+        function showError(btn, originalText) {
+            btn.textContent = '❌ Не удалось скопировать';
+            btn.classList.add('error');
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.classList.remove('error');
+            }, 3000);
+        }
+        
+        function forceDownload(url, filename) {
+            fetch(url)
+                .then(r => r.blob())
+                .then(blob => {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(a.href);
+                })
+                .catch(() => window.open(url, '_blank'));
+        }        
+    </script>
+
+</body>
+</html>
