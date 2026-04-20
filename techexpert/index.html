@@ -62,7 +62,7 @@
             border-radius: 8px;
             padding: 16px;
             font-family: monospace;
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             white-space: pre-wrap;
             word-wrap: break-word;
             max-height: 500px;
@@ -148,7 +148,7 @@
             background: #fff8c5;
             border: 1px solid #d4a72c;
             border-radius: 6px;
-            font-size: 0.8rem;
+            font-size: 0.95rem;
             color: #6a5300;
             display: none;
         }    
@@ -196,9 +196,6 @@
     <div class="links">
         <a class="action-link" id="openFile" target="_blank" rel="noopener">
             Открыть файл
-        </a>
-        <a class="action-link" href="#" id="downloadFile">
-            Скачать файл
         </a>
         <a class="meta-link" id="historyFile" target="_blank" rel="noopener">
             История изменений (GitHub)
@@ -255,11 +252,6 @@
 
         document.getElementById('openFile').href = rawUrl;
         document.getElementById('historyFile').href = historyUrl;
-
-        document.getElementById('downloadFile').addEventListener('click', function (e) {
-            e.preventDefault();
-            forceDownload(rawUrl, fileName);
-        });
 
         // Флаг: промпт успешно загружен
         let promptLoaded = false;
@@ -347,22 +339,7 @@
                 btn.textContent = originalText;
                 btn.classList.remove('error');
             }, 3000);
-        }
-        
-        function forceDownload(url, filename) {
-            fetch(url)
-                .then(r => r.blob())
-                .then(blob => {
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(a.href);
-                })
-                .catch(() => window.open(url, '_blank'));
-        }        
+        }     
     </script>
 
 </body>
