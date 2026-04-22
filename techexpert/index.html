@@ -6,6 +6,33 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
+        .cta-btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            margin-top: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.2;
+            color: #fff;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+            text-decoration: none;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .try-btn-lnk {
+            background: #0969da;
+        }
+
+        .try-btn-lnk:hover { background: #0757b5; }
+        .try-btn-lnk:active { background: #054a96; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             max-width: 700px;
@@ -14,16 +41,6 @@
             background: #f8f9fa;
             color: #1a1a1a;
         }
-
-        .back {
-            display: inline-block;
-            margin-bottom: 16px;
-            color: #0969da;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-
-        .back:hover { text-decoration: underline; }
 
         h1 {
             font-size: 1.5rem;
@@ -50,12 +67,6 @@
             line-height: 1.5;
         }
 
-        .meta {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 16px;
-        }
-
         .prompt-box {
             background: #fff;
             border: 1px solid #d0d7de;
@@ -72,27 +83,18 @@
         }
 
         .copy-btn {
-            display: block;
-            width: 100%;
-            padding: 16px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #fff;
-            background: #2ea043;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
+            background: #1a8d3b;
+            margin-top: 0;
             margin-bottom: 16px;
         }
 
         .copy-btn:hover:not(:disabled) { background: #278c37; }
         .copy-btn:active:not(:disabled) { background: #1a6b28; }
-        .copy-btn.copied { background: #1a6b28; }
+        .copy-btn.copied { background: #2baa4f; }
         .copy-btn.error { background: #cf222e; }
 
         .copy-btn:disabled {
-            background: #94d3a2;
+            background: #5bb974;
             cursor: not-allowed;
         }
 
@@ -100,7 +102,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 0px;
+            margin-bottom: 0;
             flex-wrap: wrap;
         }
 
@@ -143,7 +145,7 @@
         }
 
         .note {
-            margin-top: 24px;
+            margin-bottom: 16px;
             padding: 12px;
             background: #fff8c5;
             border: 1px solid #d4a72c;
@@ -157,7 +159,6 @@
             font-size: 1rem;
             margin: 16px 0 6px;
         }        
-
 
         p {
             margin: 0 0 12px 0;
@@ -179,7 +180,7 @@
     <ol>
         <li>Работа в рамках контекста/предметной области (задается в переменной CONTEXT).</li>
         <li>Минимизирует «галлюцинации» в технических ответах. Заставляет модель не придумывать факты/параметры/функции, а либо опираться на данные, либо явно сообщать, что данных недостаточно и помечать [ГИПОТЕЗЫ].</li>
-        <li>При работе со скриншотами валидирует полученное изображение в кратком виде (режим И — по-умолчанию) или детально с перечнем видимых фактов (режим ИФ).</li>
+        <li>При работе со скриншотами валидирует полученное изображение в кратком виде (режим И - по-умолчанию) или детально с перечнем видимых фактов (режим ИФ).</li>
         <li>Запрашивает недостающие данные вместо догадок.</li>
         <li>Маркер режима ("Ответ в режиме технического эксперта.") для выявления начала деградации текущего контекста; исчезновение маркера указывает на смещение контекстного окна.</li>        
     </ol>
@@ -188,11 +189,23 @@
     
     <div class="prompt-box" id="promptText">Загрузка...</div>
 
-    <button class="copy-btn" onclick="copyPrompt(this)" disabled>
-        📋 Скопировать
-    </button>
-
     <div class="note" id="errorNote"></div>
+
+    <button class="cta-btn copy-btn" onclick="copyPrompt(this)" disabled>
+        📋 Скопировать
+    </button>     
+
+    <a
+        class="cta-btn try-btn-lnk"
+        id="tryBtnLnk"
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Агрегатор для тестирования промпта в топовых ИИ."
+        aria-label="Проверить в AI"
+    >
+        🤖 Проверить в AI
+    </a>    
 
     <div class="links">
         <a class="action-link" id="openFile" target="_blank" rel="noopener">
@@ -200,7 +213,7 @@
         </a>
         <a class="meta-link" id="historyFile" target="_blank" rel="noopener">
             История изменений (GitHub)
-        </a>
+        </a>     
     </div>
 
     <h2>Версии</h2>
@@ -222,11 +235,11 @@
         </li>
     </ul>
 
-    <h2>Дисклеймер / Отказ от ответственности</h2>
+    <h2>Отказ от ответственности</h2>
     
-    <h3>Отказ от ответственности</h3>
+    <h3>Общие положения</h3>
     <p>
-        Материал статьи предоставляется исключительно в информационных и образовательных целях и публикуется «как есть». Автор не гарантирует точность, полноту и применимость описанных методов к конкретным исходникам и задачам. Любые действия по установке/использованию программ, плагинов и настройке оборудования вы выполняете самостоятельно и на свой риск. Автор не несёт ответственности за любые прямые или косвенные последствия и убытки, включая (но не ограничиваясь) ухудшение качества материала, потерю данных, финансовые потери, сбои программного обеспечения, повреждение оборудования и/или вред здоровью.
+        Материал статьи предоставляется исключительно в информационных и образовательных целях и публикуется «как есть». Автор не гарантирует точность, полноту и применимость описанных методов к конкретным исходным материалам и задачам. Любые действия по установке/использованию программ, плагинов и настройке оборудования вы выполняете самостоятельно и на свой риск. Автор не несёт ответственности за любые прямые или косвенные последствия и убытки, включая (но не ограничиваясь) ухудшение качества материала, потерю данных, финансовые потери, сбои программного обеспечения, повреждение оборудования и/или вред здоровью.
     </p>
     
     <h3>Безопасность и сохранность данных</h3>
@@ -247,7 +260,7 @@
         Текст промпта вставляется через textContent (не innerHTML).
         Это значит: HTML/XML-подобные теги в промпте (<info>, </info> и т.п.)
         отображаются и копируются как обычный текст, а не как разметка.
-        Это сделано специально — безопасно и без искажений.
+        Это сделано специально - безопасно и без искажений.
         Не меняй на innerHTML.
     -->
 
@@ -279,9 +292,9 @@
             .then(text => {
                 document.getElementById('promptText').textContent = text;
                 promptLoaded = true;
-                // Разблокируем кнопки
-                document.querySelectorAll('.copy-btn')
-                    .forEach(btn => btn.disabled = false);
+                // Разблокируем кнопку
+                const btn = document.querySelector('.copy-btn');
+                if (btn) btn.disabled = false;
             })
             .catch(err => {
                 document.getElementById('promptText').textContent =
@@ -292,8 +305,8 @@
                 note.textContent =
                     'Не удалось загрузить файл. ' +
                     'Попробуйте обновить страницу. ' +
-                    'Если проблема повторяется — файл может быть недоступен.';
-                // Кнопки остаются disabled
+                    'Если проблема повторяется - файл может быть недоступен.';
+                // Кнопка остаётся disabled
             });
 
         function copyPrompt(btn) {
@@ -308,11 +321,11 @@
                 navigator.clipboard.writeText(text).then(() => {
                     showSuccess(btn, originalText);
                 }).catch(() => {
-                    // Clipboard API не сработал — пробуем fallback
+                    // Clipboard API не сработал - пробуем fallback
                     fallbackCopy(text, btn, originalText);
                 });
             } else {
-                // Clipboard API недоступен — сразу fallback
+                // Clipboard API недоступен - сразу fallback
                 fallbackCopy(text, btn, originalText);
             }
         }
@@ -355,6 +368,14 @@
                 btn.classList.remove('error');
             }, 3000);
         }     
+
+        const _aRef = 'aHR0cHM6Ly9zeW50eC5haS93ZWxjb21lL2RtdExmbkV4';
+            
+        try {
+            document.getElementById('tryBtnLnk').href = atob(_aRef);
+        } catch (e) {
+            // decode error
+        }        
     </script>
 
 </body>
